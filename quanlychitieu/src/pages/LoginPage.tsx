@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import backgroundImage from '../assets/lmao.jpg';
+
 
 export default function LoginPage() {
   const [username, setUsername] = useState('');
@@ -11,8 +13,13 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center bg-gray-100">
-      <div className="w-full max-w-md rounded-lg bg-white p-8 shadow-xl">
+    <div className="flex min-h-screen w-full items-center justify-center
+     bg-cover bg-center"
+  style={{ backgroundImage: `url(${backgroundImage})` }} >
+    
+    
+    
+      <div className="w-full max-w-md rounded-lg bg-white bg-opacity-90 p-8 shadow-xl backdrop-blur-sm">
         <h1 className="mb-6 text-center text-3xl font-bold text-gray-800">
           Đăng Nhập
         </h1>
@@ -29,7 +36,7 @@ export default function LoginPage() {
               className="w-full rounded border px-3 py-2 leading-tight text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               id="username"
               type="text"
-              placeholder="Nhập tài khoản của bạn"
+              placeholder="Tên đăng nhập"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
             />
@@ -105,7 +112,7 @@ export default function LoginPage() {
             </svg>
             Đăng nhập bằng Facebook
           </button>
-        </div>
+      </div>
       </div>
     </div>
   );
