@@ -18,7 +18,7 @@ exports.register = async (req, res) => {
         res.status(201).send({ message: 'Đăng ký thành công.', userId: result.insertId });
     } catch (error) {
         console.error(error);
-        res.status(500).send({ message: 'Lỗi server khi đăng ký.' });
+        res.status(500).send({ message: 'Lỗi khi đăng ký.' });
     }
 };
 
