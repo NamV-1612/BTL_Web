@@ -9,17 +9,48 @@ export default function DeleteCategoryModal({ isOpen, onClose, category, onConfi
   if (!isOpen) return null;
   
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="w-96 rounded-lg bg-white p-6 shadow-xl">
-        <h2 className="mb-2 text-xl font-bold text-red-600">Xác nhận xóa?</h2>
-        <p className="mb-6 text-gray-600">
-            Bạn có chắc muốn xóa danh mục <b>{category?.name}</b> không? 
-            <br/><br/>
-            <span className="text-sm italic">Lưu ý: Các giao dịch thuộc danh mục này sẽ được chuyển sang nhóm "Khác" (Other).</span>
-        </p>
-        <div className="flex justify-end gap-2">
-          <button onClick={onClose} className="rounded bg-gray-200 px-4 py-2 hover:bg-gray-300">Hủy</button>
-          <button onClick={() => onConfirm(category.id)} className="rounded bg-red-600 px-4 py-2 text-white hover:bg-red-700">Xóa luôn</button>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      {/* Overlay: Backdrop blur đồng bộ */}
+      <div 
+        className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" 
+        onClick={onClose} 
+      />
+
+      {/* Modal Container */}
+      <div className="relative w-full max-w-sm transform overflow-hidden rounded-2xl bg-white p-8 shadow-2xl transition-all border border-rose-50">
+        
+        {/* Warning Icon & Title */}
+        <div className="mb-4 text-center">
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-rose-100 text-rose-600">
+            <span className="text-2xl">🗑️</span>
+          </div>
+          <h2 className="text-xl font-bold text-gray-900">Xác nhận xóa?</h2>
+        </div>
+
+        {/* Content */}
+        <div className="mb-8 text-center">
+          <p className="text-gray-600">
+            Bạn có chắc muốn xóa danh mục <span className="font-bold text-gray-900">"{category?.name}"</span>?
+          </p>
+          <div className="mt-4 rounded-xl bg-amber-50 p-3 text-sm text-amber-800 border border-amber-100">
+            <strong>Lưu ý:</strong> Các giao dịch cũ sẽ tự động được chuyển sang nhóm <span className="italic italic font-semibold">"Khác"</span>.
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex gap-3">
+          <button 
+            onClick={onClose} 
+            className="flex-1 rounded-xl bg-gray-100 px-4 py-3 font-semibold text-gray-600 transition-all hover:bg-gray-200"
+          >
+            Hủy
+          </button>
+          <button 
+            onClick={() => onConfirm(category.id)} 
+            className="flex-1 rounded-xl bg-rose-600 px-4 py-3 font-semibold text-white shadow-lg shadow-rose-200 transition-all hover:bg-rose-700 active:scale-[0.98]"
+          >
+            Xóa ngay
+          </button>
         </div>
       </div>
     </div>

@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
-import pool from '../db'; // Lưu ý: Nếu dùng ts-node thì import pool from '../db' là đủ, không cần .js
+import pool from '../db'; 
 import jwt from 'jsonwebtoken';
 
-// --- ĐĂNG KÝ ---
+// phần đăng ký
 export const register = async (req: Request, res: Response) => {
     const { username, email, password } = req.body;
 
@@ -24,7 +24,7 @@ export const register = async (req: Request, res: Response) => {
             return res.status(409).send({ message: 'Tên người dùng đã tồn tại.' });
         }
 
-        // --- SỬA CHỖ NÀY: password_hash -> password ---
+       
         const [result]: any = await pool.execute(
             'INSERT INTO users (username, email, password, auth_provider) VALUES (?, ?, ?, ?)', 
             [username, email, password, 'local'] 
@@ -38,12 +38,12 @@ export const register = async (req: Request, res: Response) => {
     }
 };
 
-// --- ĐĂNG NHẬP ---
+// phần đăng nhập
 export const login = async (req: Request, res: Response) => {
     const { username, password } = req.body;
     
     try {
-        // --- SỬA CHỖ NÀY: Lấy cột password ---
+        
         const [users]: any = await pool.execute(
             'SELECT user_id, username, email, password FROM users WHERE username = ?', 
             [username]
@@ -52,10 +52,8 @@ export const login = async (req: Request, res: Response) => {
         if (users.length === 0) {
             return res.status(401).send({ message: 'Tên người dùng không tồn tại.' });
         }
-
         const user = users[0];
 
-        // --- SỬA CHỖ NÀY: So sánh với user.password ---
         if (password === user.password) {
             
             const token = jwt.sign(

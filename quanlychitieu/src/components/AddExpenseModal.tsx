@@ -15,21 +15,18 @@ export default function AddExpenseModal({ isOpen, onClose, onAdd, categories, ex
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [note, setNote] = useState('');
 
-  // --- SỬA LOGIC TẠI ĐÂY ---
   useEffect(() => {
     if (isOpen) {
-        if (type === 'expense' && categories.length > 0) {
-            // Nếu là Chi tiêu: Tự động chọn danh mục đầu tiên
-            setCategory(categories[0].name);
-        } else if (type === 'income') {
-            // Nếu là Thu nhập: Để trống ô nhập liệu
-            setCategory('');
-        }
+      if (type === 'expense' && categories.length > 0) {
+        setCategory(categories[0].name);
+      } else if (type === 'income') {
+        setCategory('');
+      }
     }
   }, [isOpen, type, categories]);
 
   const warning = useMemo(() => {
-    if (type !== 'expense' || !category) return null;
+    if (type !== 'expense' || !category || !amount) return null;
     const cat = categories.find(c => c.name === category);
     if (!cat || cat.limit === 0) return null;
     
@@ -45,103 +42,113 @@ export default function AddExpenseModal({ isOpen, onClose, onAdd, categories, ex
 
   if (!isOpen) return null;
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onAdd(type, category, Math.floor(Number(amount)), date, note);
+    setAmount('');
+    setNote('');
+    onClose();
+  };
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
-        <h2 className="mb-4 text-xl font-bold text-gray-800">Ghi Giao Dịch Mới</h2>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      {/* Backdrop */}
+      <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={onClose} />
+
+      <div className="relative w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-8 shadow-2xl transition-all border border-emerald-50">
+        <h2 className="mb-6 text-2xl font-bold text-gray-900">✨ Ghi Giao Dịch</h2>
         
-        <div className="flex mb-4 gap-2">
+        {/* Toggle Type */}
+        <div className="flex mb-6 p-1 bg-gray-100 rounded-xl">
             <button 
                 type="button" 
                 onClick={() => setType('expense')} 
-                className={`flex-1 py-2 rounded font-bold transition-colors ${type === 'expense' ? 'bg-red-100 text-red-600 ring-2 ring-red-400' : 'bg-gray-100 text-gray-500'}`}
+                className={`flex-1 py-2.5 rounded-lg font-bold transition-all ${type === 'expense' ? 'bg-white text-rose-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
             >
                 CHI TIÊU
             </button>
             <button 
                 type="button" 
                 onClick={() => setType('income')} 
-                className={`flex-1 py-2 rounded font-bold transition-colors ${type === 'income' ? 'bg-green-100 text-green-600 ring-2 ring-green-400' : 'bg-gray-100 text-gray-500'}`}
+                className={`flex-1 py-2.5 rounded-lg font-bold transition-all ${type === 'income' ? 'bg-white text-emerald-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
             >
                 THU NHẬP
             </button>
         </div>
 
-        <form onSubmit={(e) => { 
-            e.preventDefault(); 
-            onAdd(type, category, Math.floor(Number(amount)), date, note); 
-            setAmount(''); setNote(''); 
-        }}>
-            <div className="mb-3">
-                <label htmlFor="add-exp-cat" className="block text-sm text-gray-600 mb-1">Danh mục / Nguồn tiền</label>
+        <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Category / Source */}
+            <div>
+                <label className="mb-1.5 block text-sm font-semibold text-gray-700">
+                    {type === 'expense' ? 'Danh mục chi tiêu' : 'Nguồn tiền thu nhập'}
+                </label>
                 {type === 'expense' ? (
                     <select 
-                        id="add-exp-cat" 
-                        className="w-full border p-2 rounded outline-none focus:ring-2 focus:ring-blue-500" 
+                        className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 outline-none focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-100 transition-all" 
                         value={category} 
                         onChange={e => setCategory(e.target.value)} 
-                        title="Chọn danh mục"
                     >
                         {categories.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
                     </select>
                 ) : (
                     <input 
-                        id="add-exp-cat" 
-                        className="w-full border p-2 rounded outline-none focus:ring-2 focus:ring-blue-500" 
-                        placeholder="Ví dụ: Lương, Thưởng..." 
+                        className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 outline-none focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-100 transition-all" 
+                        placeholder="Ví dụ: Lương, Freelance..." 
                         value={category} 
                         onChange={e => setCategory(e.target.value)} 
                         required 
-                        title="Nhập nguồn tiền"
                     />
                 )}
             </div>
             
-            <div className="mb-2">
-                <label htmlFor="add-exp-amount" className="block text-sm text-gray-600 mb-1">Số tiền</label>
+            {/* Amount */}
+            <div>
+                <label className="mb-1.5 block text-sm font-semibold text-gray-700">Số tiền (VNĐ)</label>
                 <input 
-                    id="add-exp-amount" 
-                    className="w-full border p-2 rounded outline-none focus:ring-2 focus:ring-blue-500" 
+                    className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 outline-none focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-100 transition-all" 
                     type="number" 
-                    placeholder="Ví dụ: 50000" 
+                    placeholder="0" 
                     value={amount} 
                     onChange={e => setAmount(e.target.value)} 
                     required 
-                    title="Nhập số tiền" 
                     step="1"
                 />
             </div>
             
-            {warning && <div className="mb-3 p-3 bg-orange-50 text-orange-800 text-sm rounded border border-orange-200">⚠️ Cảnh báo vượt hạn mức!</div>}
+            {/* Warning Section */}
+            {warning && (
+                <div className="p-3 bg-amber-50 text-amber-800 text-xs rounded-xl border border-amber-200 animate-pulse">
+                    ⚠️ <strong>Cảnh báo:</strong> Giao dịch này sẽ khiến mục "{category}" vượt hạn mức tháng (Tối đa: {warning.limit.toLocaleString()}đ).
+                </div>
+            )}
 
-            <div className="mb-3">
-                <label htmlFor="add-exp-date" className="block text-sm text-gray-600 mb-1">Ngày giao dịch</label>
+            {/* Date */}
+            <div>
+                <label className="mb-1.5 block text-sm font-semibold text-gray-700">Ngày giao dịch</label>
                 <input 
-                    id="add-exp-date" 
-                    className="w-full border p-2 rounded outline-none focus:ring-2 focus:ring-blue-500" 
+                    className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 outline-none focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-100 transition-all" 
                     type="date" 
                     value={date} 
                     onChange={e => setDate(e.target.value)} 
                     required 
-                    title="Chọn ngày"
                 />
             </div>
 
-            <div className="mb-4">
-                <label htmlFor="add-exp-note" className="block text-sm text-gray-600 mb-1">Ghi chú</label>
+            {/* Note */}
+            <div>
+                <label className="mb-1.5 block text-sm font-semibold text-gray-700">Ghi chú</label>
                 <input 
-                    id="add-exp-note" 
-                    className="w-full border p-2 rounded outline-none focus:ring-2 focus:ring-blue-500" 
-                    placeholder="Ghi chú..." 
+                    className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 outline-none focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-100 transition-all" 
+                    placeholder="Mua sắm gì đó..." 
                     value={note} 
                     onChange={e => setNote(e.target.value)} 
-                    title="Nhập ghi chú"
                 />
             </div>
             
-            <div className="flex justify-end gap-2">
-                <button type="button" onClick={onClose} className="rounded bg-gray-200 px-4 py-2 hover:bg-gray-300">Hủy</button>
-                <button type="submit" className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">Lưu</button>
+            {/* Actions */}
+            <div className="flex mt-8 gap-3">
+                <button type="button" onClick={onClose} className="flex-1 rounded-xl bg-gray-100 px-4 py-3 font-semibold text-gray-600 hover:bg-gray-200 transition-all">Hủy</button>
+                <button type="submit" className="flex-[2] rounded-xl bg-emerald-600 px-4 py-3 font-semibold text-white shadow-lg shadow-emerald-200 hover:bg-emerald-700 active:scale-[0.98] transition-all">Lưu giao dịch</button>
             </div>
         </form>
       </div>

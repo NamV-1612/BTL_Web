@@ -7,7 +7,6 @@ export const getMonthlyReport = async (req: AuthRequest, res: Response) => {
         const userId = req.user?.userId;
         const { month, year } = req.query;
 
-        // Lấy tổng chi và tổng thu
         const [totals]: any = await pool.query(
             `SELECT 
                 SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END) as total_expense,
@@ -17,7 +16,6 @@ export const getMonthlyReport = async (req: AuthRequest, res: Response) => {
             [userId, month, year]
         );
 
-        // Lấy chi tiết từng danh mục (để vẽ biểu đồ tròn)
         const [breakdown]: any = await pool.query(
             `SELECT category_name as name, SUM(amount) as value 
              FROM transactions 
@@ -36,15 +34,11 @@ export const getMonthlyReport = async (req: AuthRequest, res: Response) => {
     }
 };
 
-// --- API QUAN TRỌNG CHO BIỂU ĐỒ CỘT ---
 export const getAnnualReport = async (req: AuthRequest, res: Response) => {
     try {
         const userId = req.user?.userId;
         const { year } = req.query;
 
-        // Câu lệnh SQL này tạo ra 12 dòng (Tháng 1 -> 12)
-        // Sau đó LEFT JOIN với bảng transactions và budgets
-        // Hàm COALESCE(..., 0) sẽ biến NULL thành 0 (Đúng ý bạn)
         const query = `
             SELECT 
                 months.m as name,
@@ -66,12 +60,11 @@ export const getAnnualReport = async (req: AuthRequest, res: Response) => {
 
         const [rows] = await pool.query(query, [userId, year, year, userId]);
         
-        // Format tên tháng cho đẹp (Tháng 1, Tháng 2...)
         const formattedRows = (rows as any[]).map(r => ({
             ...r,
-            name: `T${r.name}`, // Đổi số 1 -> T1
+            name: `T${r.name}`, 
             spent: Number(r.spent),
-            limit: Number(r.limit) // Đảm bảo luôn là số 0 nếu chưa set
+            limit: Number(r.limit) 
         }));
 
         res.json(formattedRows);

@@ -31,7 +31,6 @@ export default function EditExpenseModal({ isOpen, onClose, expense, onSave, cat
   useEffect(() => {
     if (expense) {
         setCategory(expense.category);
-        // SỬA: Dùng Math.floor để hiển thị số nguyên
         setAmount(String(Math.floor(expense.amount)));
         try {
             setDate(new Date(expense.date).toISOString().split('T')[0]);
@@ -47,95 +46,114 @@ export default function EditExpenseModal({ isOpen, onClose, expense, onSave, cat
   const handleSubmit = (e: React.FormEvent) => {
       e.preventDefault();
       if (expense) {
-          // SỬA: Lưu số nguyên
           onSave(expense.id, category, Math.floor(Number(amount)), date, note);
+          onClose();
       }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
-        <h2 className="mb-4 text-xl font-bold text-gray-800">Sửa Giao Dịch</h2>
-        <form onSubmit={handleSubmit}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      {/* Backdrop blur đồng bộ */}
+      <div 
+        className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" 
+        onClick={onClose} 
+      />
+
+      {/* Modal Container */}
+      <div className="relative w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-8 shadow-2xl transition-all border border-emerald-50">
+        
+        {/* Header */}
+        <div className="mb-6">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-emerald-600 text-xl">✍️</span>
+            <h2 className="text-2xl font-bold text-gray-900">Sửa Giao Dịch</h2>
+          </div>
+          <p className="text-sm text-gray-500">
+            Bạn đang chỉnh sửa khoản <strong>{expense.type === 'expense' ? 'chi tiêu' : 'thu nhập'}</strong>.
+          </p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-5">
             
-            <div className="mb-3">
-                <label htmlFor="edit-exp-category" className="block text-sm text-gray-600 mb-1">
-                  Danh mục
+            {/* Input: Category / Source */}
+            <div>
+                <label className="mb-1.5 block text-sm font-semibold text-gray-700">
+                    {expense.type === 'expense' ? 'Danh mục' : 'Nguồn thu'}
                 </label>
                 {expense.type === 'expense' ? (
-                     <select 
-                        id="edit-exp-category"
-                        className="w-full border p-2 rounded outline-none focus:ring-2 focus:ring-blue-500" 
+                    <select 
+                        className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 outline-none transition-all focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-100" 
                         value={category} 
                         onChange={e => setCategory(e.target.value)}
-                        title="Chọn danh mục"
                     >
                         {categories.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
                     </select>
                 ) : (
                     <input 
-                        id="edit-exp-category"
-                        className="w-full border p-2 rounded outline-none focus:ring-2 focus:ring-blue-500" 
+                        className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 outline-none transition-all focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-100" 
                         value={category} 
                         onChange={e => setCategory(e.target.value)} 
                         placeholder="Nhập nguồn thu..."
-                        title="Nhập danh mục hoặc nguồn thu"
+                        required
                     />
                 )}
             </div>
 
-            <div className="mb-3">
-                <label htmlFor="edit-exp-amount" className="block text-sm text-gray-600 mb-1">
-                  Số tiền
-                </label>
+            {/* Input: Amount */}
+            <div>
+                <label className="mb-1.5 block text-sm font-semibold text-gray-700">Số tiền (VNĐ)</label>
                 <input 
-                    id="edit-exp-amount"
-                    className="w-full border p-2 rounded outline-none focus:ring-2 focus:ring-blue-500" 
+                    className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 outline-none transition-all focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-100" 
                     type="number" 
                     value={amount} 
                     onChange={e => setAmount(e.target.value)} 
                     required 
-                    placeholder="Nhập số tiền..."
-                    title="Nhập số tiền"
+                    placeholder="0"
                     step="1"
                 />
             </div>
 
-            <div className="mb-3">
-                <label htmlFor="edit-exp-date" className="block text-sm text-gray-600 mb-1">
-                  Ngày
-                </label>
+            {/* Input: Date */}
+            <div>
+                <label className="mb-1.5 block text-sm font-semibold text-gray-700">Ngày giao dịch</label>
                 <input 
-                    id="edit-exp-date"
-                    className="w-full border p-2 rounded outline-none focus:ring-2 focus:ring-blue-500" 
+                    className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 outline-none transition-all focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-100" 
                     type="date" 
                     value={date} 
                     onChange={e => setDate(e.target.value)} 
                     required 
-                    title="Chọn ngày giao dịch"
                 />
             </div>
 
-            <div className="mb-4">
-                <label htmlFor="edit-exp-note" className="block text-sm text-gray-600 mb-1">
-                  Ghi chú
-                </label>
+            {/* Input: Note */}
+            <div>
+                <label className="mb-1.5 block text-sm font-semibold text-gray-700">Ghi chú</label>
                 <input 
-                    id="edit-exp-note"
-                    className="w-full border p-2 rounded outline-none focus:ring-2 focus:ring-blue-500" 
+                    className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 outline-none transition-all focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-100" 
                     value={note} 
                     onChange={e => setNote(e.target.value)} 
-                    placeholder="Nhập ghi chú..."
-                    title="Nhập ghi chú"
+                    placeholder="Thêm chi tiết..."
                 />
             </div>
 
-            <div className="flex justify-end gap-2">
-                <button type="button" onClick={onClose} className="rounded bg-gray-200 px-4 py-2 hover:bg-gray-300">Hủy</button>
-                <button type="submit" className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">Cập nhật</button>
+            {/* Buttons Section */}
+            <div className="flex mt-8 gap-3">
+                <button 
+                  type="button" 
+                  onClick={onClose} 
+                  className="flex-1 rounded-xl bg-gray-100 px-4 py-3 font-semibold text-gray-600 transition-colors hover:bg-gray-200"
+                >
+                  Hủy
+                </button>
+                <button 
+                  type="submit" 
+                  className="flex-[2] rounded-xl bg-emerald-600 px-4 py-3 font-semibold text-white shadow-lg shadow-emerald-200 transition-all hover:bg-emerald-700 active:scale-[0.98]"
+                >
+                  Cập nhật
+                </button>
             </div>
         </form>
       </div>
     </div>
   );
-} 
+}
